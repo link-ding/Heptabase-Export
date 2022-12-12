@@ -7,6 +7,7 @@ There are two part you should change before using this script.
 
 The script will read your 'All-Data.json' file and create all untrashed cards to markdown file in the folder you want. In addition, it will also change all the Heptabase bi-directional link to normal '[[]]' link in order to match the format of other note-taking applications such as obsidian logseq etc.
 
+---
 这个 repo 只有一个简单的 python 脚本，可以提高从 Heptabase 数据导出的表现。
 
 在使用这个脚本之前，有两个部分你应该改变。
