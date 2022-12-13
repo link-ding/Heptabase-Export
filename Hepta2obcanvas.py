@@ -41,7 +41,7 @@ def create_canvas(whiteboard):
         n['width'] = node['width']
         n['height'] = node['height']
         n['type'] = 'file'
-        n['file'] = "Cards/" + find_card(node['cardId']) + '.md'
+        n['file'] = "Your Cards path here" + find_card(node['cardId']) + '.md'
         result['nodes'].append(n)
     return result
 
