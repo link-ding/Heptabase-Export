@@ -3,7 +3,7 @@ import uuid
 
 print()
 
-with open('/Users/linkding/Downloads/Heptabase-Data-Backup-2022-12-12T06-55-30-509Z/All-Data.json') as json_file:
+with open('your All-Data.json path here') as json_file:
     data = json.load(json_file)
     
 print(data.keys())
