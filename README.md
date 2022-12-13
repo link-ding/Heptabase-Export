@@ -18,10 +18,10 @@ This script will automatically create each of whiteboards you have in Heptabase 
 这个 repo 只有一个简单的 python 脚本，可以提高从 Heptabase 数据导出的表现。
 
 在使用这个脚本之前，有两个部分你应该改变。
-1. 将第4行 "All-Data.json path here "改为你的 "All-Data.json "文件路径。
-2. 将第33行'export path here'改为你的导出文件夹路径。
+1. 将第4行 `All-Data.json path here `改为你的 `All-Data.json`文件路径。
+2. 将第33行`export path here`改为你的导出文件夹路径。
 
-脚本将读取你的'All-Data.json'文件，并在你想要的文件夹中创建所有未删减的卡片为markdown文件。此外，它还会把所有Heptabase的双向链接改为正常的"[[]]"链接，以便与其他笔记软件的格式相匹配，如 obsidian logseq 等等。
+脚本将读取你的`All-Data.json`文件，并在你想要的文件夹中创建所有未删减的卡片为 `markdown` 文件。此外，它还会把所有Heptabase的双向链接改为正常的"[[]]"链接，以便与其他笔记软件的格式相匹配，如 obsidian logseq 等等。
 
 如果你想保留你的Heptabase白板布局，`Hepta2obcanvas.py`可以帮助你使用Heptabase数据来创建 Obsidian Canvas 文件。
 在使用这个脚本之前，你只需要改变一个部分。
