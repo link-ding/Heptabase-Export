@@ -46,7 +46,7 @@ if all_data is not None:
                 link = find_card(uid)
                 card["content"]= card["content"].replace("{{card "+ uid + "}}",link)
 
-            markdown = (card['title'],card['content'])
+            markdown = (card['title']+'.md',card['content'])
             markdown_list.append(markdown)
             
     zip_filename = 'cards.zip'
