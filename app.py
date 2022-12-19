@@ -4,6 +4,7 @@ import zipfile
 import re
 import io
 import uuid
+import math
 
 
 st.title("Heptabase data to Obsidian Canvas")
@@ -12,7 +13,7 @@ st.markdown("""
             1. Upload your All-Data.json file. `All-Data.json` file is in your Heptabase export folder.
             2. After you upload the file, there will be two download buttons. 
                 1. Download Cards button will export all your cards in Heptabase to Markdown files in a folder with clean wiki link `[[]]`.
-                2. Download Canvas button will export all your whiteboards in Heptabase to Obsidian Canvas file in a folder. You should set the Cards Path which is the cards' related path to your obsdiian vault. The default path is `Cards/` 
+                2. Download Canvas button will export all your whiteboards in Heptabase to Obsidian Canvas file in a folder. You should set the Cards Path which is the cards' related path to your obsdian vault. The default path is `Cards/` 
             """)
 
 all_data = st.file_uploader("Upload your Heptabase All-Data.json file")
@@ -26,7 +27,7 @@ if all_data is not None:
     def find_card(uid):
         for card in data["cardList"]:
             if card['id'] == uid:
-                return '[[' + card['title'] + ']]'
+                return card 
 
 
     pattern = r'{{card\s([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})}}'
@@ -43,7 +44,8 @@ if all_data is not None:
             match = re.findall(pattern, card['content'])
             
             for uid in match:
-                link = find_card(uid)
+                card = find_card(uid)
+                link = '[[' + card['title'] + ']]'
                 card["content"]= card["content"].replace("{{card "+ uid + "}}",link)
 
             markdown = (card['title']+'.md',card['content'])
@@ -68,39 +70,106 @@ if all_data is not None:
               )
           
     # export Heptabase whiteboard to canvas
+
     def find_card(uid):
         for card in data["cardList"]:
             if card['id'] == uid:
-                return card['title']
-
+                return card
+            
     def find_whiteboard(uid):
         for whiteboard in data['whiteBoardList']:
             if whiteboard['id'] == uid:
                 return whiteboard
 
+    def find_cardInstance(uid):
+        for card in data['cardInstances']:
+            if card['id'] == uid:
+                return card
+            
+    def detect_dirction(begin,end):
+        x_diff = begin['x'] - end['x']
+        y_diff = begin['y'] - end['y']
+
+        angle = math.atan2(y_diff, x_diff)
+        angle_deg = math.degrees(angle)
+        print(angle_deg)
+        if angle_deg > 45 and angle_deg < 135:
+            return ('bottom','top')
+        elif angle_deg > 135 or angle_deg < -135:
+            return ('left','right')
+        elif angle_deg < -45 and angle_deg > - 135:
+            return ('top','bottom')
+        elif angle_deg > -45 and angle_deg < 45:
+            return ('right','left')
+        
+    def find_node(cardInstance,nodes):
+        for node in nodes:
+            if cardInstance['x'] == node['x'] and cardInstance['y'] == node['y']:
+                return node    
+            
+    connections = data['connections']
     whiteboardList = data['whiteBoardList']
+    sections = data['sections']
 
     for whiteboard in whiteboardList:
         whiteboard['nodes'] = []
+        whiteboard['edges'] = []
+        whiteboard['sections'] = []
 
     for card in data['cardInstances']:
         whiteboard_uid = card['whiteboardId']
         whiteboard = find_whiteboard(whiteboard_uid)
         whiteboard['nodes'].append(card)
+        
+    for connection in connections:
+        whiteboard_uid = connection['whiteboardId']
+        whiteboard = find_whiteboard(whiteboard_uid)
+        whiteboard['edges'].append(connection)
+    
+    for section in sections:
+        whiteboard_uid = section['whiteboardId']
+        whiteboard = find_whiteboard(whiteboard_uid)
+        whiteboard['sections'].append(section)
 
     cards_path = st.text_input('Your Cards Path','Cards/')
     def create_canvas(whiteboard):
-        result = {'nodes':[]}
+        result = {'nodes':[],'edges':[]}
         for node in whiteboard['nodes']:
             n = {}
             n['id'] = uuid.uuid4().hex[:16]
             n['x'] = node['x']
             n['y'] = node['y']
             n['width'] = node['width']
-            n['height'] = node['height']
+            n['height'] = node['height']-30
             n['type'] = 'file'
-            n['file'] = cards_path + find_card(node['cardId']) + '.md'
+            n['file'] = cards_path + find_card(node['cardId'])['title'] + '.md'
             result['nodes'].append(n)
+            
+        for section in whiteboard['sections']:
+            n = {}
+            n['id'] = uuid.uuid4().hex[:16]
+            n['x'] = section['x']
+            n['y'] = section['y']
+            n['width'] = section['width']
+            n['height'] = section['height']
+            n['type'] = 'group'
+            n['label'] = section['title']
+            result['nodes'].append(n)
+            
+        for connection in whiteboard['edges']:
+            if connection['beginObjectType'] == 'cardInstance' and connection['endObjectType'] == 'cardInstance':
+                n = {}
+                n['id'] = uuid.uuid4().hex[:16]
+                begin = find_cardInstance(connection['beginId'])
+                end = find_cardInstance(connection['endId'])
+                n['fromNode'] = find_node(begin,result['nodes'])['id']
+                n['toNode'] = find_node(end,result['nodes'])['id']
+                
+                toside, fromside = detect_dirction(begin,end)
+                n['fromSide'] = fromside
+                n['toSide'] = toside
+                result['edges'].append(n)
+                                       
         return result
 
     canvas = {}
