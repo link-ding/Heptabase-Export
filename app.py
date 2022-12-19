@@ -7,6 +7,14 @@ import uuid
 
 
 st.title("Heptabase data to Obsidian Canvas")
+st.markdown("> This is a Web APP to export your Data from Heptabase to Obsidian, follow the instruction below to use.")
+st.markdown("""
+            1. Upload your All-Data.json file. `All-Data.json` file is in your Heptabase export folder.
+            2. After you upload the file, there will be two download buttons. 
+                1. Download Cards button will export all your cards in Heptabase to Markdown files in a folder with clean wiki link `[[]]`.
+                2. Download Canvas button will export all your whiteboards in Heptabase to Obsidian Canvas file in a folder. You should set the Cards Path which is the cards' related path to your obsdiian vault. The default path is `Cards/` 
+            """)
+
 all_data = st.file_uploader("Upload your Heptabase All-Data.json file")
 
 if all_data is not None:
@@ -53,7 +61,7 @@ if all_data is not None:
     
     with open(zip_filename, "rb") as fp:
           btn = st.download_button(
-              label="Download Clean Cards",
+              label="Download Cards",
               data=fp,
               file_name="Cards.zip",
               mime="application/octet-stream"
