@@ -1,7 +1,6 @@
 import json
 import uuid
 
-print()
 
 with open('your All-Data.json path here') as json_file:
     data = json.load(json_file)

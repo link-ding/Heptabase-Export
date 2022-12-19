@@ -1,11 +1,13 @@
 import json
 import re
+import sys
 
-with open('All-Data.json path here') as json_file:
+all_data_path = input('Please input your All-Data json path: ')
+export_path = input('Please input your export path: ')
+
+with open(all_data_path) as json_file:
     data = json.load(json_file)
     
-#print(data.keys())
-
 
 def find_card(uid):
     for card in data["cardList"]:
